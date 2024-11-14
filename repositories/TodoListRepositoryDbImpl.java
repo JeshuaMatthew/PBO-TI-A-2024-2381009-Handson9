@@ -2,8 +2,6 @@ package repositories;
 
 import config.Database;
 import entities.TodoList;
-
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -101,7 +99,27 @@ public class TodoListRepositoryDbImpl implements  TodoListRepositories{
     }
 
     @Override
-    public Boolean edit(TodoList todoList) {
-        return null;
+    public Boolean edit(final TodoList todolist) {
+        String sqlStatement = "UPDATE todos set todo = ? WHERE id = ?";
+        Connection conn = database.getConnection();
+        var dbId = getDbId(todolist.getId());
+        if (dbId == null) {
+            return false;
+        }
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement);
+            preparedStatement.setString(1, todolist.getTodo());
+            preparedStatement.setInt(2, dbId);
+
+            int rowsEffected = preparedStatement.executeUpdate();
+            if (rowsEffected > 0) {
+                System.out.println("Update successful !");
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 }
